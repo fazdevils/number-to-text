@@ -1,6 +1,6 @@
 # number-to-text
 
-## 
+## Overview
 
 Sample project to convert integers to text.
 
@@ -18,19 +18,27 @@ Assumptions:
 * Only Integer values in the range of Integer.MIN_VALUE and Integer.MAX_VALUE are supported (no fractional or decimal numbers)
 * The target output is English.  Internationalization and localization are not supported.
 
-## Build
+## Execution
+
+### Build
 
 	mvn clean package
 
-## Run
+### Run
 
 	java -jar target/number-to-text.jar [number]
 	
-## GitFlow
+## Development Model
 
-Mostly follow [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow "GitFlow") as implemented by [JGit Flow](https://bitbucket.org/atlassian/jgit-flow/wiki/goals.wiki)
+Mostly follow [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow "GitFlow") as implemented by [gitflow-maven-plugin](https://github.com/aleksandr-m/gitflow-maven-plugin)
 
-## Create a release
+### Create a feature branch
+
+- `mvn gitflow:feature-start`
+- implement the feature
+- `mvn gitflow:feature-finish`
+
+### Create a release
 
 - `mvn gitflow:release-start`
 - verify the release
