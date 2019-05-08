@@ -23,6 +23,12 @@ Assumptions:
 ### Build
 
 	mvn clean package
+	
+Notes:
+
+* Code conventions are verified during the build using [checkstyle](http://checkstyle.sourceforge.net/)
+* A unit test coverage report is available after successful build at `target/site/jacoco/index.html`
+	
 
 ### Run
 
