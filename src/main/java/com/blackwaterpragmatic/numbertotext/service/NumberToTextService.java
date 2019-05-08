@@ -68,7 +68,7 @@ public class NumberToTextService {
 		try {
 			number = Integer.valueOf(numberToConvert);
 		} catch (@SuppressWarnings("unused") final NumberFormatException e) {
-			return String.format("ERROR: String must be an integer in the range of %d to %d", Integer.MIN_VALUE, Integer.MAX_VALUE);
+			return String.format("ERROR: Number must be a whole number in the range of %d to %d", Integer.MIN_VALUE, Integer.MAX_VALUE);
 		}
 
 		final String result;

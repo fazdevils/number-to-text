@@ -112,11 +112,11 @@ public class NumberToTextServiceTest {
 
 	@Test
 	public void testMinIntegerMinus1() {
-		assertEquals("ERROR: String must be an integer in the range of -2147483648 to 2147483647", numberToTextService.convert("-2147483649"));
+		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("-2147483649"));
 	}
 
 	@Test
 	public void testMaxIntegerPlus1() {
-		assertEquals("ERROR: String must be an integer in the range of -2147483648 to 2147483647", numberToTextService.convert("2147483648"));
+		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("2147483648"));
 	}
 }
