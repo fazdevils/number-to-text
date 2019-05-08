@@ -98,11 +98,25 @@ public class NumberToTextServiceTest {
 		assertEquals("Nine hundred and ninety nine thousand nine hundred and ninety nine", numberToTextService.convert("999999"));
 	}
 
-	/**
-	 * TODO Build more tests
-	 * Integer.MIN_VALUE
-	 * Integer.MAX_VALUE
-	 * Integer.MIN_VALUE-1
-	 * Integer.MAX_VALUE+1
-	 */
+	@Test
+	public void testMinInteger() {
+		assertEquals("Minus two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty eight",
+				numberToTextService.convert("-2147483648"));
+	}
+
+	@Test
+	public void testMaxInteger() {
+		assertEquals("Two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty seven",
+				numberToTextService.convert("2147483647"));
+	}
+
+	@Test
+	public void testMinIntegerMinus1() {
+		assertEquals("ERROR: String must be an integer in the range of -2147483648 to 2147483647", numberToTextService.convert("-2147483649"));
+	}
+
+	@Test
+	public void testMaxIntegerPlus1() {
+		assertEquals("ERROR: String must be an integer in the range of -2147483648 to 2147483647", numberToTextService.convert("2147483648"));
+	}
 }
