@@ -76,6 +76,10 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		return capitalizeResult(result.trim());
 	}
 
+	private String buildZeroString() {
+		return ONES[0];
+	}
+
 	private String buildNumberString(final Integer originalNumber) {
 		final StringBuilder result = new StringBuilder();
 		Long number = originalNumber.longValue();
@@ -83,9 +87,9 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		/**
 		 * Handle negative numbers
 		 */
-		if (isNegativeNumber(number)) {
+		if (number < 0) {
 			result.append("minus ");
-			number = convertToPositiveNumber(number);
+			number *= -1;
 		}
 
 		/**
@@ -95,16 +99,63 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		 */
 		for (final Integer numberGroup : NUMBER_GROUPS.keySet()) {
 			/**
-			 * If there are numbers in this group to print,
-			 * add the leading 3 digits to the result string
+			 * Print the leading 3 digits to the result string (if applicable)
 			 * then move to the next number group
 			 */
-			if (shouldPrintGroupNumbers(number, numberGroup)) {
-				final Integer groupNumber = getGroupNumber(number, numberGroup);
-				result.append(buildGroupNumberString(groupNumber));
-				result.append(buildGroupLabel(numberGroup));
-				number = shiftToNextGroup(number, numberGroup);
+			result.append(buildGroupNumberString(number, numberGroup));
+			number = shiftToNextGroup(number, numberGroup);
+		}
+
+		return capitalizeResult(result.toString().trim());
+	}
+
+	private Long shiftToNextGroup(final Long number, final Integer numberGroup) {
+		return number % numberGroup;
+	}
+
+	private String capitalizeResult(final String resultString) {
+		final StringBuilder result = new StringBuilder(resultString);
+		result.setCharAt(0, result.substring(0, 1).toUpperCase().charAt(0));
+		return result.toString();
+	}
+
+	private String buildGroupNumberString(final Long number, final Integer numberGroup) {
+		Integer groupNumber = getGroupNumber(number, numberGroup);
+		final StringBuilder result = new StringBuilder();
+
+		/**
+		 * build the hundreds part of the string
+		 */
+		if ((groupNumber / ONE_HUNDRED) > 0) {
+			result.append(ONES[groupNumber / ONE_HUNDRED]).append(" hundred ");
+			groupNumber %= ONE_HUNDRED; // remove the leading digit
+			if (isMoreNumberGroupsToProcess(groupNumber)) {
+				result.append("and ");
 			}
+		}
+
+		/**
+		 * build the tens part of the string
+		 */
+		if ((groupNumber / TEN) > 0) {
+			if (groupNumber < TWENTY) { // teen names combine the tens and ones position
+				result.append(TEENS[groupNumber % TEN]).append(" ");
+				groupNumber = 0;
+			} else {
+				result.append(TENS[groupNumber / TEN]).append(" ");
+				groupNumber %= TEN; // remove the leading digit
+			}
+		}
+
+		/**
+		 * build the ones part of the string
+		 */
+		if (groupNumber > 0) {
+			result.append(ONES[groupNumber]).append(" ");
+		}
+
+		if (result.length() > 0) {
+			result.append(buildGroupLabel(numberGroup));
 		}
 
 		return result.toString();
@@ -114,76 +165,12 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		return new Long(number / numberGroup).intValue();
 	}
 
-	private String buildGroupLabel(final Integer numberGroup) {
-		return NUMBER_GROUPS.get(numberGroup) + " ";
-	}
-
-	private Long shiftToNextGroup(final Long number, final Integer numberGroup) {
-		return number % numberGroup;
-	}
-
-	private boolean shouldPrintGroupNumbers(final Long number, final Integer numberGroup) {
-		return getGroupNumber(number, numberGroup) > 0;
-	}
-
-	private boolean isNegativeNumber(final Long number) {
-		return number < 0;
-	}
-
-	private Long convertToPositiveNumber(final Long number) {
-		return number * -1;
-	}
-
-	private String buildZeroString() {
-		return ONES[0];
-	}
-
-	private String capitalizeResult(final String resultString) {
-		final StringBuilder result = new StringBuilder(resultString);
-		result.setCharAt(0, result.substring(0, 1).toUpperCase().charAt(0));
-		return result.toString();
-	}
-
-	private String buildGroupNumberString(final Integer numberGroup) {
-		Integer number = numberGroup;
-		final StringBuilder result = new StringBuilder();
-
-		/**
-		 * build the hundreds part of the string
-		 */
-		if ((number / ONE_HUNDRED) > 0) {
-			result.append(ONES[number / ONE_HUNDRED]).append(" hundred ");
-			number %= ONE_HUNDRED; // remove the leading digit
-			if (isMoreNumberGroupsToProcess(number)) {
-				result.append("and ");
-			}
-		}
-
-		/**
-		 * build the tens part of the string
-		 */
-		if ((number / TEN) > 0) {
-			if (number < TWENTY) { // teen names combine the tens and ones position
-				result.append(TEENS[number % TEN]).append(" ");
-				number = 0;
-			} else {
-				result.append(TENS[number / TEN]).append(" ");
-				number %= TEN; // remove the leading digit
-			}
-		}
-
-		/**
-		 * build the ones part of the string
-		 */
-		if (isMoreNumberGroupsToProcess(number)) {
-			result.append(ONES[number]).append(" ");
-		}
-		return result.toString();
-	}
-
 	private boolean isMoreNumberGroupsToProcess(final Integer numberGroup) {
 		return numberGroup > 0;
 	}
 
+	private String buildGroupLabel(final Integer numberGroup) {
+		return NUMBER_GROUPS.get(numberGroup) + " ";
+	}
 
 }
