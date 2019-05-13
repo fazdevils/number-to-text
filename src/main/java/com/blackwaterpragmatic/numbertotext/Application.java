@@ -1,6 +1,7 @@
 package com.blackwaterpragmatic.numbertotext;
 
 import com.blackwaterpragmatic.numbertotext.service.NumberToTextService;
+import com.blackwaterpragmatic.numbertotext.service.NumberToTextServiceViaNumbers;
 
 public class Application {
 
@@ -11,7 +12,7 @@ public class Application {
 	}
 
 	public static void main(final String[] args) {
-		final NumberToTextService numberToTextService = new NumberToTextService();
+		final NumberToTextService numberToTextService = new NumberToTextServiceViaNumbers();
 		final Application application = new Application(numberToTextService);
 		final String result = application.convertNumberToText(args);
 		System.out.println(result);

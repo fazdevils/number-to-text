@@ -5,9 +5,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class NumberToTextServiceTest {
+public class NumberToTextServiceViaNumbersTest {
 
-	private final NumberToTextService numberToTextService = new NumberToTextService();
+	private final NumberToTextService numberToTextService = new NumberToTextServiceViaNumbers();
 
 	@Test
 	public void testZeroConversion() {
@@ -120,6 +120,12 @@ public class NumberToTextServiceTest {
 	@Test(expected = NumberFormatException.class)
 	public void testMaxIntegerPlus1() {
 		numberToTextService.convert("2147483648");
+		fail();
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void testNonNumericInput() {
+		numberToTextService.convert("string");
 		fail();
 	}
 }

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.blackwaterpragmatic.numbertotext.service.NumberToTextService;
+import com.blackwaterpragmatic.numbertotext.service.NumberToTextServiceViaNumbers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class ApplicationTest {
 
 	@Mock
-	private NumberToTextService numberToTextService;
+	private NumberToTextServiceViaNumbers numberToTextService;
 
 	@InjectMocks
 	private Application application;
@@ -53,6 +53,20 @@ public class ApplicationTest {
 		verifyNoMoreInteractions(numberToTextService);
 
 		assertEquals("Usage: java -jar target/number-to-text.jar [number]", result);
+	}
+
+	@Test
+	public void testNonNumericInput() {
+		final String arg0 = "string";
+		final NumberFormatException nfe = new NumberFormatException();
+		when(numberToTextService.convert(arg0)).thenThrow(nfe);
+
+		final String result = application.convertNumberToText(new String[]{arg0});
+
+		verify(numberToTextService).convert(arg0);
+		verifyNoMoreInteractions(numberToTextService);
+
+		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", result);
 	}
 
 }
