@@ -1,6 +1,7 @@
 package com.blackwaterpragmatic.numbertotext.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -110,13 +111,15 @@ public class NumberToTextServiceTest {
 				numberToTextService.convert("2147483647"));
 	}
 
-	@Test
+	@Test(expected = NumberFormatException.class)
 	public void testMinIntegerMinus1() {
-		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("-2147483649"));
+		numberToTextService.convert("-2147483649");
+		fail();
 	}
 
-	@Test
+	@Test(expected = NumberFormatException.class)
 	public void testMaxIntegerPlus1() {
-		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("2147483648"));
+		numberToTextService.convert("2147483648");
+		fail();
 	}
 }

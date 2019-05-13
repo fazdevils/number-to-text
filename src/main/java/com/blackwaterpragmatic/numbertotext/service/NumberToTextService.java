@@ -34,13 +34,13 @@ public class NumberToTextService {
 			"fifteen",
 			"sixteen",
 			"seventeen",
-			"eightteen",
+			"eighteen",
 			"nineteen"
 	};
 
 	private static final String[] TENS = new String[]{
-			null,
-			null,
+			null, // unused - values supplied by ONES
+			null, // unused - values supplied by TEENS
 			"twenty",
 			"thirty",
 			"fourty",
@@ -63,13 +63,16 @@ public class NumberToTextService {
 		}
 	};
 
-	public String convert(final String numberToConvert) {
-		final Integer number;
-		try {
-			number = Integer.valueOf(numberToConvert);
-		} catch (@SuppressWarnings("unused") final NumberFormatException e) {
-			return String.format("ERROR: Number must be a whole number in the range of %d to %d", Integer.MIN_VALUE, Integer.MAX_VALUE);
-		}
+	/**
+	 * Convert the input number to text. i.e "5237" will return "Five thousand two hundred and thirty seven"
+	 * @param numberToConvert
+	 * String representation of the number to convert
+	 * @return
+	 * @throws NumberFormatException
+	 * if the input number cannot be converted to text
+	 */
+	public String convert(final String numberToConvert) throws NumberFormatException {
+		final Integer number = Integer.valueOf(numberToConvert);
 
 		final String result;
 		if (0 == number) {
@@ -87,7 +90,7 @@ public class NumberToTextService {
 		/**
 		 * Handle negative numbers
 		 */
-		if (negativeNumber(number)) {
+		if (isNegativeNumber(number)) {
 			result.append("minus ");
 			number = convertToPositiveNumber(number);
 		}
@@ -103,9 +106,9 @@ public class NumberToTextService {
 			 * add the leading 3 digits to the result string
 			 * then move to the next number group
 			 */
-			if (printGroupNumbers(number, numberGroup)) {
+			if (shouldPrintGroupNumbers(number, numberGroup)) {
 				final Integer groupNumbers = getGroupNumbers(number, numberGroup);
-				result.append(buildGroupNumberString(groupNumbers) + " ");
+				result.append(buildGroupNumberString(groupNumbers));
 				result.append(buildGroupLabel(numberGroup));
 				number = shiftToNextGroup(number, numberGroup);
 			}
@@ -126,11 +129,11 @@ public class NumberToTextService {
 		return number % numberGroup;
 	}
 
-	private boolean printGroupNumbers(final Long number, final Integer numberGroup) {
+	private boolean shouldPrintGroupNumbers(final Long number, final Integer numberGroup) {
 		return getGroupNumbers(number, numberGroup) > 0;
 	}
 
-	private boolean negativeNumber(final Long number) {
+	private boolean isNegativeNumber(final Long number) {
 		return number < 0;
 	}
 
@@ -156,7 +159,7 @@ public class NumberToTextService {
 		 * build the hundreds part of the string
 		 */
 		if ((number / ONE_HUNDRED) > 0) {
-			result.append(ONES[number / ONE_HUNDRED] + " hundred ");
+			result.append(ONES[number / ONE_HUNDRED]).append(" hundred ");
 			number %= ONE_HUNDRED; // remove the leading digit
 			if (moreNumberGroupsToProcess(number)) {
 				result.append("and ");
@@ -168,10 +171,10 @@ public class NumberToTextService {
 		 */
 		if ((number / TEN) > 0) {
 			if (number < TWENTY) { // teen names combine the tens and ones position
-				result.append(TEENS[number % TEN]);
+				result.append(TEENS[number % TEN]).append(" ");
 				number = 0;
 			} else {
-				result.append(TENS[number / TEN] + " ");
+				result.append(TENS[number / TEN]).append(" ");
 				number %= TEN; // remove the leading digit
 			}
 		}
@@ -180,9 +183,9 @@ public class NumberToTextService {
 		 * build the ones part of the string
 		 */
 		if (moreNumberGroupsToProcess(number)) {
-			result.append(ONES[number]);
+			result.append(ONES[number]).append(" ");
 		}
-		return result.toString().trim();
+		return result.toString();
 	}
 
 	private boolean moreNumberGroupsToProcess(final Integer numberGroup) {
