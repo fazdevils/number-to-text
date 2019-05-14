@@ -13,4 +13,15 @@ public interface NumberToTextService {
 	 */
 	String convert(String numberToConvert) throws NumberFormatException;
 
+	/**
+	 * Minimum value this service can convert
+	 * @return
+	 */
+	String minValue();
+
+	/**
+	 * Maximum value this service can convert
+	 * @return
+	 */
+	String maxValue();
 }

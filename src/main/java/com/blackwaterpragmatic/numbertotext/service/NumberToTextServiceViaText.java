@@ -1,9 +1,11 @@
 package com.blackwaterpragmatic.numbertotext.service;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
-public class NumberToTextServiceViaNumbers implements NumberToTextService {
+public class NumberToTextServiceViaText implements NumberToTextService {
+	private static final int MAX_NUMBERS_IN_GROUP = 3;
+
 	private static final Integer ONE = 1;
 	private static final Integer TEN = 10;
 	private static final Integer TWENTY = 20;
@@ -51,12 +53,7 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 			"ninety"
 	};
 
-	/**
-	 * Note the use of LinkedHashMap. Insertion order is important here. This decision might be a little unconventional,
-	 * but it felt cleaner to loop through the group of NUMBER_GROUPS than using math to determine the group at each
-	 * iteration. See NumberToTextServiceViaNumbers for the alternate implementation.
-	 */
-	private static final Map<Integer, String> NUMBER_GROUPS = new LinkedHashMap<Integer, String>() {
+	private static final Map<Integer, String> NUMBER_GROUPS = new HashMap<Integer, String>() {
 		{
 			put(ONE_BILLION, "billion");
 			put(ONE_MILLION, "million");
@@ -67,63 +64,82 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 
 	@Override
 	public String convert(final String numberToConvert) throws NumberFormatException {
-		final Integer number = Integer.valueOf(numberToConvert);
-
 		final String result;
-		if (0 == number) {
+		if (!isNumber(numberToConvert)) {
+			throw new NumberFormatException("numberToConvert can only contain an optional minus sign and digits");
+		} else if (isZero(numberToConvert)) {
 			result = buildZeroString();
 		} else {
-			result = buildNumberString(number);
+			result = buildNumberString(numberToConvert);
 		}
 		return capitalizeResult(result.trim());
 	}
 
-
 	@Override
 	public String minValue() {
-		return Integer.toString(Integer.MIN_VALUE);
+		return "-999999999999";
 	}
 
 	@Override
 	public String maxValue() {
-		return Integer.toString(Integer.MAX_VALUE);
+		return "999999999999";
+	}
+
+	private boolean isNumber(final String numberToConvert) {
+		return numberToConvert.matches("-?[0-9]+");
+	}
+
+	private boolean isZero(final String numberToConvert) {
+		return numberToConvert.matches("-?[0]+");
 	}
 
 	private String buildZeroString() {
 		return ONES[0];
 	}
 
-	private String buildNumberString(final Integer originalNumber) {
+	private String buildNumberString(final String numberToConvert) throws NumberFormatException {
+		final StringBuilder input = new StringBuilder(numberToConvert);
 		final StringBuilder result = new StringBuilder();
-		Long number = originalNumber.longValue();
 
 		/**
 		 * Handle negative numbers
 		 */
-		if (number < 0) {
-			result.append("minus ");
-			number *= -1;
+		final boolean isNegativeNumber = isNegativeNumber(input);
+		if (isNegativeNumber) {
+			input.deleteCharAt(0);
 		}
 
 		/**
-		 * Start with the largest number group (billions, millions, etc)
+		 * Start with the smallest number group (ones, hundreds, etc)
 		 * and append each group to the number string until we've processed
 		 * all the groups
 		 */
-		for (final Integer numberGroup : NUMBER_GROUPS.keySet()) {
+		Integer numberGroup = ONE;
+		while (input.length() > 0) {
 			/**
-			 * Print the leading 3 digits to the result string (if applicable)
+			 * Print the last 3 digits to the result string (if applicable)
 			 * then move to the next number group
 			 */
-			result.append(buildGroupNumberString(number, numberGroup));
-			number = shiftToNextGroup(number, numberGroup);
+			final int inputLength = input.length();
+			if (inputLength > MAX_NUMBERS_IN_GROUP) {
+				result.insert(0, buildGroupNumberString(input.substring(inputLength - MAX_NUMBERS_IN_GROUP, inputLength), numberGroup));
+				input.setLength(inputLength - MAX_NUMBERS_IN_GROUP);
+			} else {
+				result.insert(0, buildGroupNumberString(input.toString(), numberGroup));
+				input.setLength(0);
+			}
+			numberGroup *= ONE_THOUSAND;
+		}
+
+		if (isNegativeNumber) {
+			result.insert(0, "minus ");
 		}
 
 		return capitalizeResult(result.toString().trim());
 	}
 
-	private Long shiftToNextGroup(final Long number, final Integer numberGroup) {
-		return number % numberGroup;
+	private boolean isNegativeNumber(final StringBuilder input) {
+		return input.charAt(0) == '-';
 	}
 
 	private String capitalizeResult(final String resultString) {
@@ -132,8 +148,8 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		return result.toString();
 	}
 
-	private String buildGroupNumberString(final Long number, final Integer numberGroup) {
-		Integer groupNumber = getGroupNumber(number, numberGroup);
+	private String buildGroupNumberString(final String number, final Integer numberGroup) throws NumberFormatException {
+		Integer groupNumber = Integer.parseInt(number);
 		final StringBuilder result = new StringBuilder();
 
 		/**
@@ -174,16 +190,16 @@ public class NumberToTextServiceViaNumbers implements NumberToTextService {
 		return result.toString();
 	}
 
-	private Integer getGroupNumber(final Long number, final Integer numberGroup) {
-		return new Long(number / numberGroup).intValue();
-	}
-
 	private boolean isMoreNumberGroupsToProcess(final Integer numberGroup) {
 		return numberGroup > 0;
 	}
 
-	private String buildGroupLabel(final Integer numberGroup) {
-		return NUMBER_GROUPS.get(numberGroup) + " ";
+	private String buildGroupLabel(final Integer numberGroup) throws NumberFormatException {
+		if (NUMBER_GROUPS.containsKey(numberGroup)) {
+			return NUMBER_GROUPS.get(numberGroup) + " ";
+		} else {
+			throw new NumberFormatException("Cannot represent number");
+		}
 	}
 
 }

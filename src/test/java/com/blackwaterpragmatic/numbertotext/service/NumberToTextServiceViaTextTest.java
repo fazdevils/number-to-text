@@ -5,13 +5,23 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class NumberToTextServiceViaNumbersTest {
+public class NumberToTextServiceViaTextTest {
 
-	private final NumberToTextService numberToTextService = new NumberToTextServiceViaNumbers();
+	private final NumberToTextService numberToTextService = new NumberToTextServiceViaText();
 
 	@Test
 	public void testZeroConversion() {
 		assertEquals("Zero", numberToTextService.convert("0"));
+	}
+
+	@Test
+	public void testMinusZeroConversion() {
+		assertEquals("Zero", numberToTextService.convert("-0"));
+	}
+
+	@Test
+	public void testAllZeroConversion() {
+		assertEquals("Zero", numberToTextService.convert("0000000"));
 	}
 
 	@Test
@@ -99,28 +109,41 @@ public class NumberToTextServiceViaNumbersTest {
 		assertEquals("Nine hundred and ninety nine thousand nine hundred and ninety nine", numberToTextService.convert("999999"));
 	}
 
+
 	@Test
 	public void testMinInteger() {
-		assertEquals("Minus two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty eight",
+		assertEquals("Minus nine hundred and ninety nine billion nine hundred and ninety nine million " +
+				"nine hundred and ninety nine thousand nine hundred and ninety nine",
 				numberToTextService.convert(numberToTextService.minValue()));
 	}
 
 	@Test
 	public void testMaxInteger() {
-		assertEquals("Two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty seven",
+		assertEquals("Nine hundred and ninety nine billion nine hundred and ninety nine million " +
+				"nine hundred and ninety nine thousand nine hundred and ninety nine",
 				numberToTextService.convert(numberToTextService.maxValue()));
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void testMinIntegerMinus1() {
-		numberToTextService.convert("-2147483649");
-		fail();
+		try {
+			System.out.println(numberToTextService.convert("-1000000000000"));
+			fail();
+		} catch (final NumberFormatException e) {
+			assertEquals("Cannot represent number", e.getMessage());
+			throw e;
+		}
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void testMaxIntegerPlus1() {
-		numberToTextService.convert("2147483648");
-		fail();
+		try {
+			numberToTextService.convert("1000000000000");
+			fail();
+		} catch (final NumberFormatException e) {
+			assertEquals("Cannot represent number", e.getMessage());
+			throw e;
+		}
 	}
 
 	@Test(expected = NumberFormatException.class)
@@ -129,4 +152,9 @@ public class NumberToTextServiceViaNumbersTest {
 		fail();
 	}
 
+	@Test(expected = NumberFormatException.class)
+	public void testoubleMinusInput() {
+		numberToTextService.convert("--0");
+		fail();
+	}
 }

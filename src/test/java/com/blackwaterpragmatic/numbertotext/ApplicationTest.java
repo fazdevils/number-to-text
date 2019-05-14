@@ -59,14 +59,19 @@ public class ApplicationTest {
 	public void testNonNumericInput() {
 		final String arg0 = "string";
 		final NumberFormatException nfe = new NumberFormatException();
+
 		when(numberToTextService.convert(arg0)).thenThrow(nfe);
+		when(numberToTextService.minValue()).thenReturn("minValue");
+		when(numberToTextService.maxValue()).thenReturn("maxValue");
 
 		final String result = application.convertNumberToText(new String[]{arg0});
 
 		verify(numberToTextService).convert(arg0);
+		verify(numberToTextService).minValue();
+		verify(numberToTextService).maxValue();
 		verifyNoMoreInteractions(numberToTextService);
 
-		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", result);
+		assertEquals("ERROR: Number must be a whole number in the range of minValue to maxValue", result);
 	}
 
 }

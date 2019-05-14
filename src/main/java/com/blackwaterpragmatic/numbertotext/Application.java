@@ -25,7 +25,9 @@ public class Application {
 		try {
 			return numberToTextService.convert(args[0]);
 		} catch (@SuppressWarnings("unused") final NumberFormatException e) {
-			return String.format("ERROR: Number must be a whole number in the range of %d to %d", Integer.MIN_VALUE, Integer.MAX_VALUE);
+			return String.format("ERROR: Number must be a whole number in the range of %s to %s",
+					numberToTextService.minValue(),
+					numberToTextService.maxValue());
 		}
 
 	}
