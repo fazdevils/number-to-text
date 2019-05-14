@@ -1,16 +1,27 @@
 package com.blackwaterpragmatic.numbertotext.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class NumberToTextServiceTest {
+public class NumberToTextServiceViaTextTest {
 
-	private final NumberToTextService numberToTextService = new NumberToTextService();
+	private final NumberToTextService numberToTextService = new NumberToTextServiceViaText();
 
 	@Test
 	public void testZeroConversion() {
 		assertEquals("Zero", numberToTextService.convert("0"));
+	}
+
+	@Test
+	public void testMinusZeroConversion() {
+		assertEquals("Zero", numberToTextService.convert("-0"));
+	}
+
+	@Test
+	public void testAllZeroConversion() {
+		assertEquals("Zero", numberToTextService.convert("0000000"));
 	}
 
 	@Test
@@ -98,25 +109,52 @@ public class NumberToTextServiceTest {
 		assertEquals("Nine hundred and ninety nine thousand nine hundred and ninety nine", numberToTextService.convert("999999"));
 	}
 
+
 	@Test
 	public void testMinInteger() {
-		assertEquals("Minus two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty eight",
-				numberToTextService.convert("-2147483648"));
+		assertEquals("Minus nine hundred and ninety nine billion nine hundred and ninety nine million " +
+				"nine hundred and ninety nine thousand nine hundred and ninety nine",
+				numberToTextService.convert(numberToTextService.minValue()));
 	}
 
 	@Test
 	public void testMaxInteger() {
-		assertEquals("Two billion one hundred and fourty seven million four hundred and eighty three thousand six hundred and fourty seven",
-				numberToTextService.convert("2147483647"));
+		assertEquals("Nine hundred and ninety nine billion nine hundred and ninety nine million " +
+				"nine hundred and ninety nine thousand nine hundred and ninety nine",
+				numberToTextService.convert(numberToTextService.maxValue()));
 	}
 
-	@Test
+	@Test(expected = NumberFormatException.class)
 	public void testMinIntegerMinus1() {
-		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("-2147483649"));
+		try {
+			System.out.println(numberToTextService.convert("-1000000000000"));
+			fail();
+		} catch (final NumberFormatException e) {
+			assertEquals("Cannot represent number", e.getMessage());
+			throw e;
+		}
 	}
 
-	@Test
+	@Test(expected = NumberFormatException.class)
 	public void testMaxIntegerPlus1() {
-		assertEquals("ERROR: Number must be a whole number in the range of -2147483648 to 2147483647", numberToTextService.convert("2147483648"));
+		try {
+			numberToTextService.convert("1000000000000");
+			fail();
+		} catch (final NumberFormatException e) {
+			assertEquals("Cannot represent number", e.getMessage());
+			throw e;
+		}
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void testNonNumericInput() {
+		numberToTextService.convert("string");
+		fail();
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void testoubleMinusInput() {
+		numberToTextService.convert("--0");
+		fail();
 	}
 }
